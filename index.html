@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>나의 시작페이지</title>
+<style>
+:root{
+  --bg:#F2F2F7; --card:#FFFFFF; --sheet:#F2F2F7; --card2:#FFFFFF; --seg-on:#FFFFFF;
+  --label:#000000; --label2:rgba(60,60,67,.62); --label3:rgba(60,60,67,.3);
+  --sep:rgba(60,60,67,.18); --fill:rgba(120,120,128,.12);
+  --tint:#007AFF; --green:#34C759; --red:#FF3B30; --bar:rgba(242,242,247,.78);
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Apple SD Gothic Neo","Pretendard","Noto Sans KR","Malgun Gothic",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#000000; --card:#1C1C1E; --sheet:#1C1C1E; --card2:#2C2C2E; --seg-on:#636366;
+    --label:#FFFFFF; --label2:rgba(235,235,245,.62); --label3:rgba(235,235,245,.3);
+    --sep:rgba(84,84,88,.6); --fill:rgba(120,120,128,.26);
+    --tint:#0A84FF; --green:#30D158; --red:#FF453A; --bar:rgba(0,0,0,.72);
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--label);font:17px/1.4 var(--font);-webkit-font-smoothing:antialiased;letter-spacing:-.01em}
+body.lock{overflow:hidden}
+button,input,textarea{font:inherit;color:inherit;letter-spacing:inherit}
+button{-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:2px solid var(--tint);outline-offset:2px}
+
+/* Top bar: collapses like an iOS large title */
+.topbar{position:sticky;top:0;z-index:20;padding-top:env(safe-area-inset-top,0px);transition:background .2s,box-shadow .2s}
+.topbar.scrolled{background:var(--bar);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);box-shadow:0 .5px 0 var(--sep)}
+.topbar-inner{position:relative;max-width:880px;margin:0 auto;height:52px;padding:0 20px;display:flex;align-items:center;justify-content:flex-end;gap:10px}
+.mini-title{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:17px;font-weight:600;white-space:nowrap;opacity:0;transition:opacity .2s;pointer-events:none}
+.topbar.scrolled .mini-title{opacity:1}
+.round{width:36px;height:36px;border-radius:50%;border:0;background:var(--fill);color:var(--tint);display:grid;place-items:center;cursor:pointer}
+.round svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.round.spin svg{animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.wrap{max-width:880px;margin:0 auto;padding:0 20px calc(56px + env(safe-area-inset-bottom,0px))}
+.large{padding:0 0 18px;margin-top:-6px}
+.date{margin:0;font-size:15px;font-weight:600;color:var(--label2)}
+h1{margin:2px 0 0;font-size:34px;line-height:1.2;font-weight:700;letter-spacing:-.02em}
+
+/* Weather */
+.weather{display:grid;grid-template-columns:1fr;gap:14px}
+@media (min-width:720px){.weather{grid-template-columns:1fr 1fr}}
+.wx{border-radius:26px;padding:20px 18px 14px;color:#fff;background:linear-gradient(160deg,var(--c1,#3a4a63),var(--c2,#26334a));overflow:hidden;min-width:0;transition:background .4s}
+.wx-top{display:flex;justify-content:space-between;gap:12px}
+.wx-name{font-size:24px;font-weight:600;letter-spacing:-.02em;line-height:1.2}
+.wx-time{font-size:13px;font-weight:500;opacity:.9;margin-top:2px}
+.wx-temp{font-size:76px;line-height:1;font-weight:300;letter-spacing:-.05em;margin-top:10px}
+.wx-side{text-align:right;display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between}
+.wx-side svg{display:block}
+.wx-cond{font-size:17px;font-weight:600;margin-top:4px}
+.wx-hl{font-size:15px;font-weight:500;opacity:.92}
+.wx-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:16px}
+.tile{background:rgba(255,255,255,.17);border-radius:14px;padding:9px 4px 8px;text-align:center;min-width:0}
+.tile b{display:block;font-size:15px;font-weight:600;white-space:nowrap}
+.tile span{display:block;font-size:12px;font-weight:500;opacity:.92;margin-top:1px}
+.hours{display:flex;gap:2px;overflow-x:auto;margin:14px -8px 0;padding:12px 8px 4px;border-top:1px solid rgba(255,255,255,.24);scrollbar-width:none}
+.hours::-webkit-scrollbar{display:none}
+.hour{flex:0 0 auto;min-width:58px;text-align:center;font-size:13px;font-weight:500}
+.hour svg{display:block;margin:6px auto 0}
+.hour .pp{display:block;height:14px;font-size:11px;font-weight:600;color:#BFE3FF;line-height:14px}
+.hour .t{display:block;font-size:16px;font-weight:600}
+.wx-note{font-size:12.5px;font-weight:500;opacity:.9;margin-top:10px}
+.wx-msg{min-height:150px;display:flex;flex-direction:column;justify-content:center;gap:6px}
+.wx-msg .big{font-size:17px;font-weight:600}
+.wx-msg .small{font-size:14px;opacity:.9}
+.wx-msg button{align-self:flex-start;margin-top:8px;border:0;border-radius:999px;background:rgba(255,255,255,.22);color:#fff;font-weight:600;padding:8px 16px;cursor:pointer}
+.pulse{animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.5}}
+
+/* Cards, groups, rows */
+.card{background:var(--card);border-radius:22px}
+.page-card{margin-top:22px;padding:20px 20px 14px}
+.page-card:focus-within{box-shadow:0 0 0 3px color-mix(in srgb,var(--tint) 28%,transparent)}
+.card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.card-head h2{margin:0;font-size:22px;font-weight:700;letter-spacing:-.02em}
+.sub{margin:4px 0 0;font-size:15px;color:var(--label2)}
+.pill{flex:none;font-size:13px;font-weight:600;color:var(--tint);background:color-mix(in srgb,var(--tint) 14%,transparent);border-radius:999px;padding:5px 11px}
+.pill[hidden]{display:none}
+#mp{display:block;width:100%;min-height:320px;margin-top:16px;padding:0;border:0;outline:0;resize:none;background:transparent;font-size:18px;line-height:1.75;caret-color:var(--tint);overflow:hidden}
+#mp::placeholder{color:var(--label3)}
+.card-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:10px;padding-top:12px;border-top:1px solid var(--sep)}
+.progress{display:flex;align-items:center;gap:10px;font-size:15px;color:var(--label2);font-variant-numeric:tabular-nums}
+.progress b{color:var(--label);font-weight:600}
+.progress .done{color:var(--green);font-weight:600}
+.ring{flex:none}
+.ring .fg{transition:stroke-dashoffset .35s ease,stroke .2s}
+.saved{font-size:13px;color:var(--label2);display:inline-flex;align-items:center;gap:5px}
+.saved svg{width:14px;height:14px;fill:none;stroke:var(--green);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.saved.warn{color:var(--red)}
+
+.list-title{margin:32px 4px 10px;font-size:22px;font-weight:700;letter-spacing:-.02em}
+.group{background:var(--card);border-radius:18px;overflow:hidden}
+.row{position:relative;display:flex;align-items:center;gap:12px;width:100%;min-height:54px;padding:11px 16px;border:0;background:none;text-align:left;cursor:pointer}
+.row+.row::before,.results .row::before{content:"";position:absolute;top:0;left:16px;right:0;height:1px;background:var(--sep)}
+.row:active{background:var(--fill)}
+@media (hover:hover){.row:hover{background:var(--fill)}}
+.row-main{flex:1;min-width:0}
+.row-title{font-size:17px;font-weight:500}
+.row-sub{font-size:15px;color:var(--label2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row-end{flex:none;display:flex;align-items:center;gap:6px;font-size:15px;color:var(--label2);font-variant-numeric:tabular-nums}
+.row-end svg{width:8px;height:14px;fill:none;stroke:var(--label3);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.empty{padding:22px 16px;text-align:center;font-size:15px;color:var(--label2);line-height:1.6}
+.link-btn{display:block;margin:12px auto 0;border:0;background:none;color:var(--tint);font-size:17px;padding:8px 14px;cursor:pointer}
+.link-btn[hidden]{display:none}
+.foot{margin-top:34px;text-align:center;font-size:12.5px;color:var(--label2)}
+.foot a{color:inherit}
+
+/* Sheets */
+.overlay{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,0);transition:background .26s}
+.overlay[hidden]{display:none}
+.overlay.show{background:rgba(0,0,0,.38)}
+.sheet{width:100%;max-width:640px;max-height:calc(100% - 28px - env(safe-area-inset-top,0px));display:flex;flex-direction:column;background:var(--sheet);border-radius:26px 26px 0 0;transform:translateY(100%);transition:transform .34s cubic-bezier(.32,.72,0,1);overflow:hidden}
+.overlay.show .sheet{transform:none}
+@media (min-width:720px){
+  .overlay{align-items:center}
+  .sheet{border-radius:26px;max-height:82vh;transform:translateY(20px) scale(.97);opacity:0;transition:transform .3s cubic-bezier(.32,.72,0,1),opacity .2s}
+  .overlay.show .sheet{transform:none;opacity:1}
+  .grabber{display:none}
+}
+.grabber{flex:none;width:36px;height:5px;border-radius:3px;background:var(--label3);margin:8px auto 0}
+.sheet-nav{flex:none;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:8px 12px 6px 16px}
+.sheet-nav h2{margin:0;font-size:16px;font-weight:600;white-space:nowrap}
+.sheet-nav .done{grid-column:3;justify-self:end;border:0;background:none;color:var(--tint);font-weight:600;padding:8px 6px;cursor:pointer}
+.sheet-body{overflow:auto;padding:8px 16px calc(24px + env(safe-area-inset-bottom,0px));-webkit-overflow-scrolling:touch}
+.sheet .group{background:var(--card2)}
+.sheet .row:active{background:var(--fill)}
+.pad{padding:16px}
+.sheet-ta{display:block;width:100%;min-height:280px;border:0;outline:0;resize:none;background:transparent;font-size:18px;line-height:1.75;caret-color:var(--tint);overflow:hidden}
+.sheet-count{margin:8px 16px 0;font-size:13px;color:var(--label2);font-variant-numeric:tabular-nums}
+.sec-title{margin:22px 16px 7px;font-size:13px;color:var(--label2);font-weight:500}
+.sec-title:first-child{margin-top:6px}
+.note{margin:8px 16px 0;font-size:13px;line-height:1.5;color:var(--label2)}
+.field{cursor:text}
+.field .k{flex:none;font-size:17px;width:64px}
+.field input{flex:1;min-width:0;border:0;outline:0;background:transparent;text-align:right;font-size:17px;caret-color:var(--tint)}
+.field:focus-within{background:var(--fill)}
+.hint{padding:14px 16px;font-size:15px;color:var(--label2);border-top:1px solid var(--sep)}
+.res .row-title{font-weight:600}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--fill);border-radius:10px;padding:2px;gap:2px}
+.seg button{border:0;background:none;border-radius:8px;padding:8px 2px;font-size:14px;font-weight:500;cursor:pointer;font-variant-numeric:tabular-nums}
+.seg button[aria-pressed="true"]{background:var(--seg-on);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.14),0 0 1px rgba(0,0,0,.24)}
+.row.tinted{color:var(--tint)}
+.row.tinted[disabled]{opacity:.4;cursor:default}
+.row.center{justify-content:center}
+.row.danger{color:var(--red)}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar" id="topbar">
+  <div class="topbar-inner">
+    <span class="mini-title" id="miniTitle"></span>
+    <button class="round" id="refreshBtn" type="button" aria-label="날씨 새로고침">
+      <svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg>
+    </button>
+    <button class="round" id="settingsBtn" type="button" aria-label="설정">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5"/><circle cx="7.5" cy="12" r=".6"/><circle cx="12" cy="12" r=".6"/><circle cx="16.5" cy="12" r=".6"/></svg>
+    </button>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="large">
+    <p class="date" id="dateLabel"></p>
+    <h1 id="greeting"></h1>
+  </div>
+
+  <section class="weather" id="weather" aria-label="날씨">
+    <article class="wx" id="wx0"></article>
+    <article class="wx" id="wx1"></article>
+  </section>
+
+  <section class="card page-card" aria-labelledby="mpTitle">
+    <div class="card-head">
+      <div>
+        <h2 id="mpTitle">모닝페이지</h2>
+        <p class="sub">고치거나 멈추지 말고, 떠오르는 대로 적어 내려가세요.</p>
+      </div>
+      <span class="pill" id="streak" hidden></span>
+    </div>
+    <textarea id="mp" placeholder="오늘 아침, 머릿속에 있는 것부터 적어볼까요?" aria-label="오늘의 모닝페이지" spellcheck="false"></textarea>
+    <div class="card-foot">
+      <div class="progress">
+        <svg class="ring" viewBox="0 0 28 28" width="28" height="28" aria-hidden="true">
+          <circle cx="14" cy="14" r="11" fill="none" stroke="var(--fill)" stroke-width="4"/>
+          <circle class="fg" id="ringFg" cx="14" cy="14" r="11" fill="none" stroke="var(--tint)" stroke-width="4" stroke-linecap="round" stroke-dasharray="69.115" stroke-dashoffset="69.115" transform="rotate(-90 14 14)"/>
+        </svg>
+        <span id="count"></span>
+      </div>
+      <span class="saved" id="saved"></span>
+    </div>
+  </section>
+
+  <section aria-labelledby="histTitle">
+    <h2 class="list-title" id="histTitle">지난 기록</h2>
+    <div class="group" id="histList"></div>
+    <button type="button" class="link-btn" id="moreBtn" hidden>더 보기</button>
+  </section>
+
+  <p class="foot">날씨 정보 제공: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a></p>
+</main>
+
+<div class="overlay" id="overlay" hidden>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="grabber"></div>
+    <div class="sheet-nav">
+      <span></span>
+      <h2 id="sheetTitle"></h2>
+      <button type="button" class="done" id="sheetDone">완료</button>
+    </div>
+    <div class="sheet-body" id="sheetBody"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- helpers ---------- */
+const $ = (s, r=document) => r.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const p2 = n => String(n).padStart(2,'0');
+const fmt = n => Number(n).toLocaleString('ko-KR');
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+let storageOK = true;
+try { localStorage.setItem('sp.test','1'); localStorage.removeItem('sp.test'); } catch(e){ storageOK = false; }
+const mem = {};
+function load(k, def){
+  try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : def; }
+  catch(e){ return k in mem ? mem[k] : def; }
+}
+function save(k, v){
+  try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){ mem[k] = v; }
+}
+const dayKey = d => d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());
+const todayKey = () => dayKey(new Date());
+const chars = t => (t||'').replace(/\s/g,'').length;
+
+/* ---------- settings & data ---------- */
+const DEFAULTS = {
+  goal: 1000,
+  locs: [
+    {name:'서울', sub:'대한민국', lat:37.5665, lon:126.9780},
+    {name:'부산', sub:'대한민국', lat:35.1796, lon:129.0756}
+  ]
+};
+let settings = Object.assign({}, DEFAULTS, load('sp.settings', {}));
+if (!Array.isArray(settings.locs) || settings.locs.length !== 2) settings.locs = DEFAULTS.locs;
+if (![500,1000,1500,2000].includes(settings.goal)) settings.goal = 1000;
+const persistSettings = () => save('sp.settings', settings);
+
+let entries = load('sp.entries', {});
+const wxCache = load('sp.wx', {});
+const locKey = l => l.lat.toFixed(3)+','+l.lon.toFixed(3);
+
+/* ---------- weather ---------- */
+function wxInfo(code){
+  const m = {
+    0:['맑음','clear'],1:['대체로 맑음','clear'],2:['구름 조금','partly'],3:['흐림','cloud'],
+    45:['안개','fog'],48:['안개','fog'],
+    51:['이슬비','rain'],53:['이슬비','rain'],55:['이슬비','rain'],56:['어는 이슬비','rain'],57:['어는 이슬비','rain'],
+    61:['약한 비','rain'],63:['비','rain'],65:['강한 비','rain'],66:['어는 비','rain'],67:['어는 비','rain'],
+    71:['약한 눈','snow'],73:['눈','snow'],75:['폭설','snow'],77:['싸락눈','snow'],
+    80:['소나기','rain'],81:['소나기','rain'],82:['강한 소나기','rain'],85:['눈 소나기','snow'],86:['눈 소나기','snow'],
+    95:['뇌우','thunder'],96:['우박 동반 뇌우','thunder'],99:['우박 동반 뇌우','thunder']
+  }[code];
+  return m ? {t:m[0],k:m[1]} : {t:'정보 없음',k:'cloud'};
+}
+const SKY = {
+  'clear-day':['#2568CF','#4A92E6'],   'clear-night':['#0E1B3D','#2B4380'],
+  'partly-day':['#2F66BD','#5088D2'],  'partly-night':['#1B2A4E','#3B4F80'],
+  'cloud-day':['#66788F','#4B5C74'],   'cloud-night':['#2B3446','#434E66'],
+  'fog-day':['#6F7C8A','#525E6B'],     'fog-night':['#3A424E','#505A68'],
+  'rain-day':['#4A5E75','#2F3F55'],    'rain-night':['#242E40','#333F55'],
+  'snow-day':['#6C8AAE','#4C6B92'],    'snow-night':['#3B4A63','#56688A'],
+  'thunder-day':['#40456A','#262A4A'], 'thunder-night':['#1E2038','#31345A']
+};
+const sky = (k, day) => SKY[k+'-'+(day?'day':'night')] || SKY['cloud-day'];
+
+const CF = {cloud:'#F2F5FA', rain:'#D3DAE6', thunder:'#C3CADB', snow:'#E6ECF5', fog:'#E9EEF4'};
+const rays = (cx,cy,r1,r2) => Array.from({length:8},(_,i)=>{
+  const a=i*Math.PI/4;
+  return `<line x1="${(cx+r1*Math.cos(a)).toFixed(1)}" y1="${(cy+r1*Math.sin(a)).toFixed(1)}" x2="${(cx+r2*Math.cos(a)).toFixed(1)}" y2="${(cy+r2*Math.sin(a)).toFixed(1)}"/>`;
+}).join('');
+const sunG = (cx,cy,r) => `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#FFD60A"/><g stroke="#FFD60A" stroke-width="2.4" stroke-linecap="round">${rays(cx,cy,r+4,r+7.5)}</g>`;
+const moonG = (tx,ty,s) => `<path transform="translate(${tx} ${ty}) scale(${s})" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="#F3EDC8"/>`;
+const cloud = (dx,dy,s,fill) => `<g transform="translate(${dx} ${dy}) scale(${s})" fill="${fill}"><circle cx="16" cy="30" r="7"/><circle cx="26" cy="24" r="9.5"/><circle cx="35" cy="31" r="6.5"/><rect x="16" y="30" width="19" height="7.5" rx="3.5"/></g>`;
+function iconSVG(k, day, size){
+  let g = '';
+  if (k==='clear') g = day ? sunG(24,24,9) : moonG(3,3,1.75);
+  else if (k==='partly') g = (day ? sunG(16,16,7) : moonG(1,1,1.1)) + cloud(5,6,.9,CF.cloud);
+  else if (k==='cloud') g = cloud(10,-4,.7,'#B9C4D4') + cloud(-1,4,1,CF.cloud);
+  else if (k==='fog') g = cloud(0,-6,1,CF.fog) + '<g stroke="#fff" stroke-opacity=".9" stroke-width="2.6" stroke-linecap="round"><line x1="10" y1="38" x2="38" y2="38"/><line x1="14" y1="43" x2="34" y2="43"/></g>';
+  else if (k==='rain') g = cloud(0,-5,1,CF.rain) + '<g stroke="#8CD0FF" stroke-width="2.6" stroke-linecap="round"><line x1="17" y1="40" x2="15" y2="45"/><line x1="25" y1="40" x2="23" y2="45"/><line x1="33" y1="40" x2="31" y2="45"/></g>';
+  else if (k==='snow') g = cloud(0,-5,1,CF.snow) + '<g fill="#fff"><circle cx="16" cy="41" r="2.2"/><circle cx="25" cy="44" r="2.2"/><circle cx="34" cy="41" r="2.2"/></g>';
+  else if (k==='thunder') g = cloud(0,-5,1,CF.thunder) + '<polygon points="26,31 19,42 25,42 22,49 33,37 27,37 30,31" fill="#FFD60A"/>';
+  return `<svg viewBox="0 0 48 48" width="${size}" height="${size}" aria-hidden="true">${g}</svg>`;
+}
+
+const gradeOf = (v, lim) => {
+  if (v==null || isNaN(v)) return null;
+  const names = ['좋음','보통','나쁨','매우나쁨'];
+  return names[v<=lim[0]?0:v<=lim[1]?1:v<=lim[2]?2:3];
+};
+const hourLabel = t => { const h = parseInt(t.slice(11,13),10); return (h<12?'오전 ':'오후 ')+(h%12||12)+'시'; };
+const clockLabel = t => { const h = parseInt(t.slice(11,13),10); return (h<12?'오전 ':'오후 ')+(h%12||12)+':'+t.slice(14,16); };
+
+async function fetchJSON(url, ms=10000){
+  const c = new AbortController(); const t = setTimeout(()=>c.abort(), ms);
+  try {
+    const r = await fetch(url, {signal:c.signal});
+    if (!r.ok) throw new Error('HTTP '+r.status);
+    return await r.json();
+  } finally { clearTimeout(t); }
+}
+async function fetchWx(loc){
+  const q = `latitude=${loc.lat}&longitude=${loc.lon}`;
+  const wUrl = `https://api.open-meteo.com/v1/forecast?${q}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,is_day&hourly=temperature_2m,weather_code,precipitation_probability,is_day&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=2`;
+  const aUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?${q}&current=pm10,pm2_5&timezone=auto`;
+  const [w, a] = await Promise.allSettled([fetchJSON(wUrl), fetchJSON(aUrl)]);
+  if (w.status !== 'fulfilled') throw w.reason;
+  return {w: w.value, a: a.status==='fulfilled' ? a.value : null, at: Date.now()};
+}
+
+const wxState = [0,1].map(i => ({status:'loading', data: wxCache[locKey(settings.locs[i])] || null}));
+let pending = 0, lastFetch = 0;
+
+function cardHTML(loc, data, status){
+  const w = data.w, cur = w.current, d = w.daily;
+  const info = wxInfo(cur.weather_code), day = cur.is_day === 1;
+  const [c1,c2] = sky(info.k, day);
+  const floor = cur.time.slice(0,13)+':00';
+  let start = w.hourly.time.findIndex(t => t >= floor); if (start < 0) start = 0;
+  let hours = '';
+  for (let j=start; j<Math.min(start+13, w.hourly.time.length); j++){
+    const hi = wxInfo(w.hourly.weather_code[j]);
+    const pp = w.hourly.precipitation_probability ? w.hourly.precipitation_probability[j] : null;
+    hours += `<div class="hour"><span>${j===start?'지금':hourLabel(w.hourly.time[j])}</span>${iconSVG(hi.k, w.hourly.is_day[j]===1, 28)}<span class="pp">${pp!=null && pp>=30 ? pp+'%' : ''}</span><span class="t">${Math.round(w.hourly.temperature_2m[j])}°</span></div>`;
+  }
+  const aq = data.a && data.a.current ? gradeOf(data.a.current.pm2_5, [15,35,75]) : null;
+  const rainMax = d.precipitation_probability_max ? d.precipitation_probability_max[0] : null;
+  const note = status === 'error'
+    ? `<div class="wx-note">인터넷에 연결할 수 없어 ${esc(new Date(data.at).toLocaleTimeString('ko-KR',{hour:'numeric',minute:'2-digit'}))}에 저장된 정보를 보여드려요.</div>` : '';
+  return {
+    style: `--c1:${c1};--c2:${c2}`,
+    html: `
+    <div class="wx-top">
+      <div>
+        <div class="wx-name">${esc(loc.name)}</div>
+        <div class="wx-time">${clockLabel(cur.time)}</div>
+        <div class="wx-temp">${Math.round(cur.temperature_2m)}°</div>
+      </div>
+      <div class="wx-side">
+        ${iconSVG(info.k, day, 64)}
+        <div>
+          <div class="wx-cond">${info.t}</div>
+          <div class="wx-hl">최고 ${Math.round(d.temperature_2m_max[0])}° 최저 ${Math.round(d.temperature_2m_min[0])}°</div>
+        </div>
+      </div>
+    </div>
+    <div class="wx-stats">
+      <div class="tile"><b>${Math.round(cur.apparent_temperature)}°</b><span>체감</span></div>
+      <div class="tile"><b>${Math.round(cur.relative_humidity_2m)}%</b><span>습도</span></div>
+      <div class="tile"><b>${rainMax!=null ? rainMax+'%' : '-'}</b><span>강수확률</span></div>
+      <div class="tile"><b>${aq || '-'}</b><span>초미세먼지</span></div>
+    </div>
+    <div class="hours" role="list" aria-label="시간별 예보">${hours}</div>
+    ${note}`
+  };
+}
+function renderWeather(i){
+  const el = $('#wx'+i), st = wxState[i], loc = settings.locs[i];
+  el.removeAttribute('style');
+  if (st.data){
+    try {
+      const c = cardHTML(loc, st.data, st.status);
+      el.setAttribute('style', c.style);
+      el.innerHTML = c.html;
+      el.setAttribute('aria-label', loc.name+' 날씨');
+      return;
+    } catch(e){ st.data = null; }
+  }
+  if (st.status === 'error'){
+    el.innerHTML = `<div class="wx-msg"><div class="big">${esc(loc.name)} 날씨를 불러오지 못했어요</div><div class="small">인터넷 연결을 확인한 뒤 다시 시도해 주세요.</div><button type="button" data-retry="${i}">다시 시도</button></div>`;
+  } else {
+    el.innerHTML = `<div class="wx-msg"><div class="big">${esc(loc.name)}</div><div class="small pulse">날씨를 불러오는 중이에요</div></div>`;
+  }
+}
+async function loadWeather(i){
+  const loc = settings.locs[i], key = locKey(loc);
+  wxState[i].status = wxState[i].data ? 'refreshing' : 'loading';
+  pending++; $('#refreshBtn').classList.add('spin');
+  renderWeather(i);
+  try {
+    const data = await fetchWx(loc);
+    if (locKey(settings.locs[i]) === key){
+      wxState[i] = {status:'ok', data};
+      wxCache[key] = data; save('sp.wx', wxCache);
+    }
+  } catch(e){
+    if (locKey(settings.locs[i]) === key) wxState[i].status = 'error';
+  } finally {
+    pending--; if (!pending) $('#refreshBtn').classList.remove('spin');
+  }
+  renderWeather(i);
+}
+function refreshAll(){ lastFetch = Date.now(); loadWeather(0); loadWeather(1); }
+
+/* ---------- morning pages ---------- */
+const ta = $('#mp');
+let curKey = todayKey(), timer = null, dirty = false;
+
+function grow(el, min){
+  el.style.height = 'auto';
+  el.style.height = Math.max(el.scrollHeight, min||0) + 'px';
+}
+function commit(key, text){
+  if (text.trim() === '') delete entries[key];
+  else entries[key] = {text, updated: Date.now()};
+  save('sp.entries', entries);
+}
+function setSaved(state){
+  const s = $('#saved');
+  s.classList.remove('warn');
+  if (!storageOK){ s.classList.add('warn'); s.textContent = '이 브라우저에서는 저장되지 않아요'; return; }
+  if (state === 'saving') s.textContent = '저장 중';
+  else if (state === 'saved') s.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>저장됨';
+  else s.textContent = '';
+}
+function updateProgress(){
+  const n = chars(ta.value), goal = settings.goal, pct = Math.min(1, n/goal);
+  const fg = $('#ringFg'), C = 69.115;
+  fg.style.strokeDashoffset = C * (1 - pct);
+  fg.style.stroke = pct >= 1 ? 'var(--green)' : 'var(--tint)';
+  $('#count').innerHTML = pct >= 1
+    ? `<b>${fmt(n)}</b>자 <span class="done">목표 달성</span>`
+    : `<b>${fmt(n)}</b>자 / ${fmt(goal)}자`;
+}
+function streakCount(){
+  const has = k => entries[k] && chars(entries[k].text) > 0;
+  const d = new Date(); let n = 0;
+  if (!has(dayKey(d))) d.setDate(d.getDate()-1);
+  while (has(dayKey(d))){ n++; d.setDate(d.getDate()-1); }
+  return n;
+}
+function renderStreak(){
+  const n = streakCount(), el = $('#streak');
+  el.hidden = n < 1; el.textContent = n+'일 연속';
+}
+function renderEditor(){
+  ta.value = entries[curKey] ? entries[curKey].text : '';
+  grow(ta, 320); updateProgress();
+  setSaved(entries[curKey] ? 'saved' : '');
+}
+function flush(){
+  clearTimeout(timer);
+  if (!dirty) return;
+  dirty = false; commit(curKey, ta.value); setSaved('saved'); renderStreak();
+}
+ta.addEventListener('input', () => {
+  grow(ta, 320); updateProgress(); dirty = true; setSaved('saving');
+  clearTimeout(timer); timer = setTimeout(flush, 400);
+});
+
+/* history */
+let showAll = false;
+const dateOf = key => { const [y,m,d] = key.split('-').map(Number); return new Date(y, m-1, d); };
+function renderHistory(){
+  const tk = todayKey();
+  const keys = Object.keys(entries).filter(k => k !== tk && chars(entries[k].text) > 0).sort().reverse();
+  const list = $('#histList'), more = $('#moreBtn');
+  if (!keys.length){
+    list.innerHTML = '<div class="empty">아직 지난 기록이 없어요.<br>오늘 쓴 글은 내일부터 여기에 쌓여요.</div>';
+    more.hidden = true; return;
+  }
+  const shown = showAll ? keys : keys.slice(0, 7);
+  list.replaceChildren(...shown.map(k => {
+    const e = entries[k];
+    const first = e.text.trim().split('\n')[0];
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'row';
+    b.innerHTML = `<div class="row-main"><div class="row-title">${esc(dateOf(k).toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'short'}))}</div><div class="row-sub">${esc(first)}</div></div><div class="row-end"><span>${fmt(chars(e.text))}자</span><svg viewBox="0 0 8 14" aria-hidden="true"><path d="M1.5 1.5L6.5 7l-5 5.5"/></svg></div>`;
+    b.addEventListener('click', () => openEntry(k));
+    return b;
+  }));
+  more.hidden = keys.length <= 7;
+  more.textContent = showAll ? '접기' : `더 보기 (${keys.length - 7}개)`;
+}
+$('#moreBtn').addEventListener('click', () => { showAll = !showAll; renderHistory(); });
+
+/* ---------- sheets ---------- */
+const ov = $('#overlay'), sheet = $('#sheet'), sBody = $('#sheetBody');
+let sheetOnClose = null, lastFocus = null, closing = false;
+function openSheet(title, content, onClose){
+  lastFocus = document.activeElement;
+  $('#sheetTitle').textContent = title;
+  sBody.replaceChildren(content); sBody.scrollTop = 0;
+  sheetOnClose = onClose || null; closing = false;
+  ov.hidden = false; document.body.classList.add('lock');
+  requestAnimationFrame(() => requestAnimationFrame(() => ov.classList.add('show')));
+  const f = content.querySelector('textarea');
+  setTimeout(() => (f || $('#sheetDone')).focus({preventScroll:true}), 60);
+}
+function closeSheet(){
+  if (ov.hidden || closing) return;
+  closing = true; ov.classList.remove('show');
+  const cb = sheetOnClose; sheetOnClose = null;
+  setTimeout(() => {
+    ov.hidden = true; sBody.replaceChildren(); document.body.classList.remove('lock');
+    if (cb) cb();
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+    closing = false;
+  }, reduceMotion ? 0 : 280);
+}
+$('#sheetDone').addEventListener('click', closeSheet);
+ov.addEventListener('pointerdown', e => { if (e.target === ov) closeSheet(); });
+document.addEventListener('keydown', e => {
+  if (ov.hidden) return;
+  if (e.key === 'Escape'){ e.preventDefault(); closeSheet(); return; }
+  if (e.key === 'Tab'){
+    const f = [...sheet.querySelectorAll('button,input,textarea,a[href]')].filter(x => !x.disabled && x.offsetParent !== null);
+    if (!f.length) return;
+    const first = f[0], last = f[f.length-1];
+    if (e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+  }
+});
+
+function openEntry(key){
+  const wrap = document.createElement('div');
+  wrap.innerHTML = `<div class="group pad"><textarea class="sheet-ta" aria-label="모닝페이지 내용" spellcheck="false"></textarea></div><div class="sheet-count" id="eCount"></div><div class="group" style="margin-top:22px"><button type="button" class="row center danger" id="eDel">이 기록 삭제</button></div>`;
+  const t = $('.sheet-ta', wrap), cnt = $('#eCount', wrap), del = $('#eDel', wrap);
+  t.value = entries[key] ? entries[key].text : '';
+  let tm = null, dd = false, deleted = false;
+  const upd = () => { cnt.textContent = fmt(chars(t.value)) + '자'; };
+  const fl = () => { clearTimeout(tm); if (dd && !deleted){ dd = false; commit(key, t.value); } };
+  t.addEventListener('input', () => { grow(t, 280); upd(); dd = true; clearTimeout(tm); tm = setTimeout(fl, 400); });
+  let armed = false, armTimer = null;
+  del.addEventListener('click', () => {
+    if (!armed){
+      armed = true; del.textContent = '한 번 더 누르면 삭제돼요';
+      armTimer = setTimeout(() => { armed = false; del.textContent = '이 기록 삭제'; }, 3000);
+      return;
+    }
+    clearTimeout(armTimer); deleted = true;
+    delete entries[key]; save('sp.entries', entries);
+    closeSheet();
+  });
+  const title = dateOf(key).toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
+  openSheet(title, wrap, () => { fl(); renderHistory(); renderStreak(); });
+  upd();
+  requestAnimationFrame(() => grow(t, 280));
+}
+
+function openSettings(){
+  const wrap = document.createElement('div');
+  const secTitle = txt => { const d = document.createElement('div'); d.className = 'sec-title'; d.textContent = txt; return d; };
+  const note = txt => { const d = document.createElement('div'); d.className = 'note'; d.textContent = txt; return d; };
+
+  wrap.append(secTitle('날씨 지역'));
+  [0,1].forEach(i => {
+    const g = document.createElement('div'); g.className = 'group';
+    g.style.marginBottom = '12px';
+    g.innerHTML = `<label class="row field"><span class="k">지역 ${i+1}</span><input type="text" autocomplete="off" spellcheck="false" placeholder="도시 이름 검색" aria-label="지역 ${i+1} 검색"></label><div class="results"></div>`;
+    const input = $('input', g), res = $('.results', g);
+    input.value = settings.locs[i].name;
+    let seq = 0, tm = null, composing = false;
+    input.addEventListener('focus', () => input.select());
+    const run = async q => {
+      const my = ++seq;
+      res.innerHTML = '<div class="hint">검색 중…</div>';
+      try {
+        const j = await fetchJSON(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=6&language=ko&format=json`);
+        if (my !== seq) return;
+        const r = j.results || [];
+        if (!r.length){ res.innerHTML = '<div class="hint">결과가 없어요. 다른 이름으로 검색해 보세요.</div>'; return; }
+        res.replaceChildren(...r.map(item => {
+          const b = document.createElement('button');
+          b.type = 'button'; b.className = 'row res';
+          const sub = [item.admin1, item.country].filter(Boolean).join(', ');
+          b.innerHTML = `<div class="row-main"><div class="row-title">${esc(item.name)}</div><div class="row-sub">${esc(sub)}</div></div>`;
+          b.addEventListener('click', () => {
+            settings.locs[i] = {name:item.name, sub, lat:item.latitude, lon:item.longitude};
+            persistSettings();
+            input.value = item.name; res.replaceChildren();
+            wxState[i] = {status:'loading', data: wxCache[locKey(settings.locs[i])] || null};
+            renderWeather(i); loadWeather(i);
+          });
+          return b;
+        }));
+      } catch(e){
+        if (my !== seq) return;
+        res.innerHTML = '<div class="hint">검색하지 못했어요. 인터넷 연결을 확인해 주세요.</div>';
+      }
+    };
+    const schedule = () => {
+      clearTimeout(tm);
+      const q = input.value.trim();
+      if (!q || q === settings.locs[i].name){ seq++; res.replaceChildren(); return; }
+      tm = setTimeout(() => run(q), 350);
+    };
+    input.addEventListener('compositionstart', () => { composing = true; });
+    input.addEventListener('compositionend', () => { composing = false; schedule(); });
+    input.addEventListener('input', () => { if (!composing) schedule(); });
+    wrap.append(g);
+  });
+
+  wrap.append(secTitle('모닝페이지 목표'));
+  const segG = document.createElement('div');
+  const seg = document.createElement('div'); seg.className = 'seg'; seg.setAttribute('role','group'); seg.setAttribute('aria-label','목표 글자 수');
+  [500,1000,1500,2000].forEach(v => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.textContent = fmt(v)+'자';
+    b.setAttribute('aria-pressed', String(settings.goal === v));
+    b.addEventListener('click', () => {
+      settings.goal = v; persistSettings(); updateProgress();
+      [...seg.children].forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    });
+    seg.append(b);
+  });
+  segG.append(seg);
+  wrap.append(segG, note('공백을 뺀 글자 수 기준이에요.'));
+
+  wrap.append(secTitle('기록 관리'));
+  const eg = document.createElement('div'); eg.className = 'group';
+  const ex = document.createElement('button');
+  ex.type = 'button'; ex.className = 'row tinted'; ex.textContent = '모든 기록 텍스트로 내보내기';
+  if (!Object.keys(entries).length) ex.disabled = true;
+  ex.addEventListener('click', exportAll);
+  eg.append(ex);
+  wrap.append(eg, note('기록은 이 브라우저에만 저장돼요. 브라우저 데이터를 지우면 함께 사라지니 가끔 내보내서 보관해 두세요.'));
+
+  openSheet('설정', wrap);
+}
+function exportAll(){
+  flush();
+  const keys = Object.keys(entries).sort().reverse();
+  const txt = '\ufeff' + keys.map(k => k + '\n\n' + entries[k].text).join('\n\n----------\n\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([txt], {type:'text/plain;charset=utf-8'}));
+  a.download = 'morning-pages-' + todayKey() + '.txt';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+}
+
+/* ---------- header, clock, wiring ---------- */
+function greet(h){
+  if (h >= 5 && h < 12) return '좋은 아침이에요';
+  if (h >= 12 && h < 18) return '좋은 오후예요';
+  if (h >= 18 && h < 22) return '좋은 저녁이에요';
+  return '좋은 밤이에요';
+}
+function tick(){
+  const n = new Date();
+  const ds = n.toLocaleDateString('ko-KR', {month:'long', day:'numeric', weekday:'long'});
+  $('#dateLabel').textContent = ds; $('#miniTitle').textContent = ds;
+  $('#greeting').textContent = greet(n.getHours());
+  const k = todayKey();
+  if (k !== curKey){ flush(); curKey = k; renderEditor(); renderHistory(); renderStreak(); }
+}
+const onScroll = () => $('#topbar').classList.toggle('scrolled', window.scrollY > 40);
+window.addEventListener('scroll', onScroll, {passive:true});
+
+$('#refreshBtn').addEventListener('click', refreshAll);
+$('#settingsBtn').addEventListener('click', openSettings);
+$('#weather').addEventListener('click', e => {
+  const b = e.target.closest('[data-retry]');
+  if (b) loadWeather(Number(b.dataset.retry));
+});
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) flush();
+  else { tick(); if (Date.now() - lastFetch > 10*60*1000) refreshAll(); }
+});
+window.addEventListener('pagehide', flush);
+window.addEventListener('resize', () => grow(ta, 320));
+
+/* ---------- init ---------- */
+tick(); onScroll();
+renderWeather(0); renderWeather(1);
+renderEditor(); renderStreak(); renderHistory();
+if (!storageOK) setSaved('');
+refreshAll();
+setInterval(tick, 30000);
+setInterval(refreshAll, 20*60*1000);
+})();
+</script>
+</body>
+</html>
